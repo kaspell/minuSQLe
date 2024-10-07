@@ -13,29 +13,34 @@ close_pager(Pager *pager)
 }
 
 void *
+allocate_page(Pager *pager, uint32_t page_idx)
+{
+        void *page = (void *) malloc(PAGE_SZ);
+        uint32_t page_cnt = pager->file_sz / PAGE_SZ;
+        if (pager->file_sz % PAGE_SZ)
+                ++page_cnt;
+        if (page_idx <= page_cnt) {
+                if (lseek(pager->fd, page_idx*PAGE_SZ, SEEK_SET) < 0) {
+                        perror("lseek");
+                        exit(EXIT_FAILURE);
+                }
+                if (read(pager->fd, page, PAGE_SZ) < 0) {
+                        perror("read");
+                        exit(EXIT_FAILURE);
+                }
+        }
+        return pager->pages[page_idx] = page;
+}
+
+void *
 get_page(Pager *pager, uint32_t page_idx)
 {
         if (page_idx > TABLE_MAX_PAGES) {
                 exit(EXIT_FAILURE);
                 printf("Page index larger than maximum number of pages: %d", TABLE_MAX_PAGES);
         }
-        if (pager->pages[page_idx] == NULL) {
-                void *page = (void *) malloc(PAGE_SZ);
-                uint32_t page_cnt = pager->file_sz / PAGE_SZ;
-                if (pager->file_sz % PAGE_SZ)
-                        ++page_cnt;
-                if (page_idx <= page_cnt) {
-                        if (lseek(pager->fd, page_idx*PAGE_SZ, SEEK_SET) < 0) {
-                                perror("lseek");
-                                exit(EXIT_FAILURE);
-                        }
-                        if (read(pager->fd, page, PAGE_SZ) < 0) {
-                                perror("read");
-                                exit(EXIT_FAILURE);
-                        }
-                }
-                pager->pages[page_idx] = page;
-        }
+        if (pager->pages[page_idx] == NULL)
+                return allocate_page(pager, page_idx);
         return pager->pages[page_idx];
 }
 

@@ -31,7 +31,7 @@ fetch_page(u32 page_idx)
 {
         if (page_idx > pgr->max_pagecnt) {
                 exit(EXIT_FAILURE);
-                printf("Page index larger than maximum number of pages: %d", pgr->max_pagecnt);
+                printf("Maximum number of pages reached: %d", pgr->max_pagecnt);
         }
         if (pgr->pages[page_idx] == NULL)
                 return alloc_page(page_idx);
@@ -54,14 +54,14 @@ init_pager(const char *dbfile)
         for (u32 i=0; i<pgr->max_pagecnt; i++)
                 pgr->pages[i] = NULL;
         pgr->pagesz = PAGESZ;
-        pgr->max_pagecnt = pgr->max_pagecnt;
+        pgr->max_pagecnt = MAX_PAGECNT;
 }
 
 void
 _page_flush(u32 page_idx, u32 write_sz)
 {
         if (pgr->pages[page_idx] == NULL) {
-                printf("Attempted to flush null page\n");
+                printf("An attempt to flush a null page\n");
                 exit(EXIT_FAILURE);
         }
         if (lseek(pgr->fd, page_idx*pgr->pagesz, SEEK_SET) < 0) {

@@ -95,7 +95,7 @@ class SingleSessionBehavioralTestCase(SingleSessionTerminalTestCase):
         expected = ["Unrecognized keyword: gibberish"]
         self.assert_outputs(expected)
 
-    def test_insert_select(self):
+    def test_insert_select_000(self):
         cmds = ["insert 0 0 0",
                 "insert 0 0 1",
                 "insert 0 1 0",
@@ -111,26 +111,49 @@ class SingleSessionBehavioralTestCase(SingleSessionTerminalTestCase):
         expected = ["0 0 0", "0 0 1", "0 1 0", "0 1 1", "1 0 0", "1 0 1", "1 1 0", "1 1 1"]
         self.assert_outputs(expected)
 
-    def test_insert_select_mixed(self):
-        cmds = ["insert -50000 51234 99987",
-                "insert -1 -0 1",
+    def test_insert_select_001(self):
+        cmds = ["insert 0 -0 0",
+                "insert 99999 -49999 59",
+                "insert 1 -1 11",
+                "insert 9 90 900",
+                "insert -10 10 -100",
+                "insert -99999999 99999999 -99999999",
+                "insert 100002 10000203 1000020304",
                 "select",
                 TERM_CMD]
         self.send_cmds(cmds)
 
-        expected = ["-50000 51234 99987", "-1 0 1"]
+        expected = ["0 0 0",
+                    "99999 -49999 59",
+                    "1 -1 11",
+                    "9 90 900",
+                    "-10 10 -100",
+                    "-99999999 99999999 -99999999",
+                    "100002 10000203 1000020304"]
         self.assert_outputs(expected)
 
 
 class MultiSessionBehavioralTestCase(MultiSessionTerminalTestCase):
 
     def test_insert_persistence(self):
-        cmds_0 = ["insert 0 0 0", "insert 0 1 0", TERM_CMD]
-        cmds_1 = ["select", "insert 1 0 1", TERM_CMD]
-        cmds_2 = ["select", TERM_CMD]
+        cmds_0 = ["insert 0 0 0",
+                  "insert 0 0 -1",
+                  "insert 0 -1 0",
+                  TERM_CMD]
+        cmds_1 = ["select",
+                  "insert 0 -1 -1",
+                  "insert -1 0 0",
+                  "insert -1 0 -1",
+                  TERM_CMD]
+        cmds_2 = ["select",
+                  "insert -1 -1 0",
+                  "insert -1 -1 -1",
+                  TERM_CMD]
+        cmds_3 = ["select", TERM_CMD]
         expected_0 = ["#"]
-        expected_1 = ["0 0 0", "0 1 0"]
-        expected_2 = expected_1 + ["1 0 1"]
+        expected_1 = ["0 0 0", "0 0 -1", "0 -1 0"]
+        expected_2 = expected_1 + ["0 -1 -1", "-1 0 0", "-1 0 -1"]
+        expected_3 = expected_2 + ["-1 -1 0", "-1 -1 -1"]
 
         with self.db_connection_open():
             self.send_cmds(cmds_0)
@@ -143,3 +166,7 @@ class MultiSessionBehavioralTestCase(MultiSessionTerminalTestCase):
         with self.db_connection_open():
             self.send_cmds(cmds_2)
             self.assert_outputs(expected_2)
+
+        with self.db_connection_open():
+            self.send_cmds(cmds_3)
+            self.assert_outputs(expected_3)

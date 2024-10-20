@@ -9,15 +9,15 @@
 int
 prepr_insert(Stmt *stmt)
 {
-        char fields[tbl->col_cnt][255];
-        Token toks[tbl->col_cnt];
+        char fields[tbl()->col_cnt][255];
+        Token toks[tbl()->col_cnt];
         stmt->type = STMT_INSERT;
-        for (int i=0; i<tbl->col_cnt; i++) {
+        for (int i=0; i<tbl()->col_cnt; i++) {
                 toks[i] = next_token();
                 strncpy(fields[i], toks[i].start, toks[i].length);
                 fields[i][toks[i].length] = '\0';
         }
-        for (int i=0; i<tbl->col_cnt; i++) {
+        for (int i=0; i<tbl()->col_cnt; i++) {
                 if (toks[i].type != TOKEN_COLVAL) {
                         sprintf(error, "Error in defining column values\n");
                         return -1;

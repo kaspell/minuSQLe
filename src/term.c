@@ -11,7 +11,7 @@ void
 run_interface(const char *dbfile)
 {
         ssize_t rbytes;
-        open_db_connection(dbfile);
+        dbfpath((char *)dbfile);
         while (1) {
                 printf("%s ", prompt);
                 if ((rbytes = getline(&buffer_in[0], &max_cmd_sz, stdin)) < 0) {

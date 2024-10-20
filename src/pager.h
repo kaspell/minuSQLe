@@ -20,12 +20,10 @@ typedef struct {
         u32 max_pagecnt;
 } Pager;
 
-Pager glob_pager;
-extern Pager *pgr;
-
 
 void close_pager();
+char *dbfpath(char *);
 void *fetch_page(u32 page_num);
-void init_pager(const char *dbfile);
+Pager *pgr();
 
 #endif

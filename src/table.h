@@ -28,10 +28,7 @@ typedef struct {
         ColType cols[COLCNT];
 } Row;
 
-Table glob_table;
-extern Table *tbl;
 
-
-void init_table(const char *dbfile);
+Table *tbl();
 
 #endif
